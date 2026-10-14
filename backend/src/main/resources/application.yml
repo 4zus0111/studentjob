@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: studentjob
+  # Optional, git-ignored file for local secrets (see application-example.yml)
+  config:
+    import: optional:classpath:application-local.yml
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/springdb}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+
+app:
+  jwt:
+    # At least 32 characters (HS256). No default on purpose: must be provided.
+    secret: ${JWT_SECRET}
+    # Milliseconds. Access: 15 minutes, refresh: 7 days.
+    access-expiration: ${JWT_ACCESS_EXPIRATION:900000}
+    refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
+    # Set to true in production (HTTPS only)
+    cookie-secure: ${COOKIE_SECURE:false}
+  cors:
+    allowed-origin: ${CORS_ALLOWED_ORIGIN:http://localhost:3000}
+  admin:
+    # Seeded on startup if missing. Skipped when the password is empty.
+    email: ${ADMIN_EMAIL:admin@studentjob.local}
+    password: ${ADMIN_PASSWORD:}
