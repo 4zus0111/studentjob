@@ -1,0 +1,15 @@
+# Copy this file to application-local.yml (git-ignored) and fill in real values.
+# Alternatively, set the same values as environment variables
+# (DB_URL, DB_USERNAME, DB_PASSWORD, JWT_SECRET, ADMIN_EMAIL, ADMIN_PASSWORD, ...).
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/springdb
+    username: your_db_user
+    password: your_db_password
+
+app:
+  jwt:
+    secret: change-me-to-a-random-string-of-at-least-32-characters
+  admin:
+    email: admin@studentjob.local
+    password: change-me
