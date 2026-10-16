@@ -1,7 +1,7 @@
-import { ComingSoon } from "@/components/layout/coming-soon";
+import { AdminUsers } from "@/components/admin/admin-users";
 
 export const metadata = { title: "Quản lý người dùng" };
 
-export default function Page() {
-  return <ComingSoon title="Quản lý người dùng" />;
+export default function AdminUsersPage() {
+  return <AdminUsers />;
 }
