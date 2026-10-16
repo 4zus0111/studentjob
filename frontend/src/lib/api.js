@@ -1,7 +1,8 @@
 import axios from "axios";
 import { useAuthStore } from "@/store/auth-store";
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+// Trailing slashes are stripped: "//auth/refresh" is rejected by Spring Security
+export const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api").replace(/\/+$/, "");
 
 /** Single axios instance for the whole app. */
 export const api = axios.create({

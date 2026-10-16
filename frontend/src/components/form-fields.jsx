@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
 /**
@@ -82,6 +83,54 @@ export function PasswordField({ form, name, label, hint, required, icon: Icon, a
           {visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
         </button>
       </div>
+    </FieldShell>
+  );
+}
+
+export function TextareaField({ form, name, label, hint, required, rows = 4, className, ...props }) {
+  const error = form.formState.errors[name]?.message;
+  const id = `field-${name}`;
+
+  return (
+    <FieldShell id={id} label={label} error={error} hint={hint} required={required}>
+      <Textarea
+        id={id}
+        rows={rows}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${id}-error` : undefined}
+        className={cn("min-h-20", className)}
+        {...form.register(name)}
+        {...props}
+      />
+    </FieldShell>
+  );
+}
+
+/** Native <select>: simple, accessible and works well on mobile. `options` = [{ value, label }]. */
+export const SELECT_CLASS =
+  "h-10 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive dark:bg-input/30";
+
+export function SelectField({ form, name, label, hint, required, options, placeholder, className, ...props }) {
+  const error = form.formState.errors[name]?.message;
+  const id = `field-${name}`;
+
+  return (
+    <FieldShell id={id} label={label} error={error} hint={hint} required={required}>
+      <select
+        id={id}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${id}-error` : undefined}
+        className={cn(SELECT_CLASS, className)}
+        {...form.register(name)}
+        {...props}
+      >
+        {placeholder !== undefined && <option value="">{placeholder}</option>}
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
     </FieldShell>
   );
 }

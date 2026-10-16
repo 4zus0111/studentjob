@@ -8,9 +8,25 @@ import { RoleGuard } from "@/components/auth/role-guard";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
 import { ROLE_LINKS } from "@/components/layout/user-menu";
+import { useEmployerProfile } from "@/hooks/use-employer";
 import { ROLE_LABELS } from "@/lib/helpers";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/auth-store";
+
+/** Live approval status from the server (the session copy goes stale once an admin approves). */
+function EmployerApprovalBanner() {
+  const { data } = useEmployerProfile();
+  if (data?.status !== "PENDING_APPROVAL") return null;
+  return (
+    <Alert className="border-amber-300 bg-amber-50 text-amber-900">
+      <Clock />
+      <AlertTitle>Tài khoản đang chờ duyệt</AlertTitle>
+      <AlertDescription className="text-amber-800">
+        Bạn có thể cập nhật hồ sơ công ty, nhưng chỉ đăng tin tuyển dụng được sau khi quản trị viên phê duyệt.
+      </AlertDescription>
+    </Alert>
+  );
+}
 
 /**
  * Layout used by /student, /employer and /admin: navbar, role guard, section tabs and footer.
@@ -20,7 +36,6 @@ export function AreaShell({ role, children }) {
   const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
   const links = ROLE_LINKS[role] ?? [];
-  const pendingEmployer = role === "EMPLOYER" && user?.status === "PENDING_APPROVAL";
 
   return (
     <>
@@ -56,15 +71,7 @@ export function AreaShell({ role, children }) {
         </div>
 
         <main className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 py-8 sm:px-6">
-          {pendingEmployer && (
-            <Alert className="border-amber-300 bg-amber-50 text-amber-900">
-              <Clock />
-              <AlertTitle>Tài khoản đang chờ duyệt</AlertTitle>
-              <AlertDescription className="text-amber-800">
-                Bạn có thể cập nhật hồ sơ công ty, nhưng chỉ đăng tin tuyển dụng được sau khi quản trị viên phê duyệt.
-              </AlertDescription>
-            </Alert>
-          )}
+          {role === "EMPLOYER" && <EmployerApprovalBanner />}
           {children}
         </main>
       </RoleGuard>
