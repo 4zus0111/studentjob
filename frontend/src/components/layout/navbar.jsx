@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut, Menu } from "lucide-react";
+import { KeyRound, LogOut, Menu } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -135,6 +135,20 @@ export function Navbar() {
                       </Link>
                     ))}
                   </>
+                )}
+
+                {user && (
+                  <Link
+                    href="/account/password"
+                    onClick={() => setOpen(false)}
+                    className={cn(
+                      "mt-1 flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium",
+                      pathname.startsWith("/account/password") ? "bg-accent text-accent-foreground" : "hover:bg-muted",
+                    )}
+                  >
+                    <KeyRound className="size-4" />
+                    Đổi mật khẩu
+                  </Link>
                 )}
               </div>
 

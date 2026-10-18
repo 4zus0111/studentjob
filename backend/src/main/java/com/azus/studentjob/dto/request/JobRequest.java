@@ -2,7 +2,6 @@ package com.azus.studentjob.dto.request;
 
 import com.azus.studentjob.enums.JobStatus;
 import com.azus.studentjob.enums.JobType;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -38,8 +37,9 @@ public record JobRequest(
         @NotNull(message = "is required")
         JobType jobType,
 
+        // "Not in the past" is checked in JobService, and only when the deadline changes,
+        // so an employer can still close or edit a job whose deadline has already passed.
         @NotNull(message = "is required")
-        @FutureOrPresent(message = "must not be in the past")
         LocalDate deadline,
 
         @NotNull(message = "is required")

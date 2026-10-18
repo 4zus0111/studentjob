@@ -7,6 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -50,6 +53,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({ForbiddenException.class, AccessDeniedException.class})
     public ResponseEntity<ApiResponse<Void>> handleForbidden(RuntimeException ex) {
+        // @PreAuthorize on an endpoint reached without a valid token: answer 401 so the client can refresh
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (ex instanceof AccessDeniedException
+                && (authentication == null || authentication instanceof AnonymousAuthenticationToken)) {
+            return build(HttpStatus.UNAUTHORIZED, "Authentication required", null);
+        }
         String message = ex instanceof ForbiddenException ? ex.getMessage() : "Access denied";
         return build(HttpStatus.FORBIDDEN, message, null);
     }

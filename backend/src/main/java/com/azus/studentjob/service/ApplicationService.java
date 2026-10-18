@@ -11,6 +11,7 @@ import com.azus.studentjob.entity.Job;
 import com.azus.studentjob.entity.StudentProfile;
 import com.azus.studentjob.enums.ApplicationStatus;
 import com.azus.studentjob.enums.JobStatus;
+import com.azus.studentjob.enums.UserStatus;
 import com.azus.studentjob.exception.BadRequestException;
 import com.azus.studentjob.exception.ConflictException;
 import com.azus.studentjob.exception.ForbiddenException;
@@ -47,7 +48,7 @@ public class ApplicationService {
         Job job = jobRepository.findById(jobId)
                 .filter(j -> j.getStatus() != JobStatus.HIDDEN)
                 .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
-        if (job.getStatus() != JobStatus.OPEN) {
+        if (job.getStatus() != JobStatus.OPEN || job.getEmployer().getUser().getStatus() != UserStatus.ACTIVE) {
             throw new BadRequestException("This job is no longer accepting applications");
         }
         if (job.getDeadline().isBefore(LocalDate.now())) {
@@ -65,6 +66,15 @@ public class ApplicationService {
                 .status(ApplicationStatus.PENDING)
                 .build());
         return MyApplicationResponse.from(application);
+    }
+
+    /** The current student's application for a job (404 if the student has not applied). */
+    @Transactional(readOnly = true)
+    public MyApplicationResponse getMyApplicationForJob(Long userId, Long jobId) {
+        StudentProfile student = studentService.findProfile(userId);
+        return applicationRepository.findByJobIdAndStudentId(jobId, student.getId())
+                .map(MyApplicationResponse::from)
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found"));
     }
 
     @Transactional(readOnly = true)

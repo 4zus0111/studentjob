@@ -1,0 +1,23 @@
+# PostgreSQL for local development: `docker compose up -d`
+# Defaults match backend/src/main/resources/application-example.yml; override with a root .env file.
+services:
+  postgres:
+    image: postgres:17
+    container_name: studentjob-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-springdb}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in a .env file next to docker-compose.yml}
+    ports:
+      - "5432:5432"
+    volumes:
+      - studentjob-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  studentjob-data:

@@ -1,5 +1,6 @@
 package com.azus.studentjob.service;
 
+import com.azus.studentjob.dto.request.ChangePasswordRequest;
 import com.azus.studentjob.dto.request.LoginRequest;
 import com.azus.studentjob.dto.request.RegisterEmployerRequest;
 import com.azus.studentjob.dto.request.RegisterStudentRequest;
@@ -9,6 +10,7 @@ import com.azus.studentjob.entity.StudentProfile;
 import com.azus.studentjob.entity.User;
 import com.azus.studentjob.enums.Role;
 import com.azus.studentjob.enums.UserStatus;
+import com.azus.studentjob.exception.BadRequestException;
 import com.azus.studentjob.exception.ConflictException;
 import com.azus.studentjob.exception.ForbiddenException;
 import com.azus.studentjob.exception.UnauthorizedException;
@@ -89,6 +91,24 @@ public class AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UnauthorizedException("Authentication required"));
         return toResponse(user);
+    }
+
+    /**
+     * Changes the password of the logged-in user. Refresh tokens are stateless (not stored), so tokens issued
+     * before the change stay valid until they expire; that is a known limitation of this design.
+     */
+    @Transactional
+    public void changePassword(Long userId, ChangePasswordRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UnauthorizedException("Authentication required"));
+        // 400 (not 401): a 401 would make the client try to refresh its session
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+            throw new BadRequestException("Current password is incorrect");
+        }
+        if (passwordEncoder.matches(request.newPassword(), user.getPassword())) {
+            throw new BadRequestException("New password must be different from the current password");
+        }
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
     }
 
     private AuthResult issueTokens(User user) {

@@ -46,3 +46,18 @@ export const registerEmployerSchema = z
     path: ["confirmPassword"],
     message: "Mật khẩu nhập lại không khớp",
   });
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Vui lòng nhập mật khẩu hiện tại"),
+    newPassword: password,
+    confirmPassword: z.string().min(1, "Vui lòng nhập lại mật khẩu mới"),
+  })
+  .refine((d) => d.newPassword === d.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Mật khẩu nhập lại không khớp",
+  })
+  .refine((d) => d.currentPassword !== d.newPassword, {
+    path: ["newPassword"],
+    message: "Mật khẩu mới phải khác mật khẩu hiện tại",
+  });
