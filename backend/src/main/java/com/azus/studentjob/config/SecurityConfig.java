@@ -48,8 +48,10 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/change-password").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/jobs/**", "/api/categories").permitAll()
+                        // Only the public job endpoints: GET /api/jobs/{id}/applications/me etc. need a login
+                        .requestMatchers(HttpMethod.GET, "/api/jobs", "/api/jobs/{id}", "/api/categories").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         // Role checks are done per method with @PreAuthorize

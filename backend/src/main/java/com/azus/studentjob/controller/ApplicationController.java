@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,6 +44,15 @@ public class ApplicationController {
             @Valid @RequestBody(required = false) ApplyRequest request) {
         MyApplicationResponse application = applicationService.apply(principal.getId(), jobId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok(application, "Application submitted"));
+    }
+
+    @GetMapping("/jobs/{jobId}/applications/me")
+    @PreAuthorize("hasRole('STUDENT')")
+    @Operation(summary = "My application for a job (404 if I have not applied)")
+    public ResponseEntity<ApiResponse<MyApplicationResponse>> myApplicationForJob(
+            @AuthenticationPrincipal CustomUserDetails principal, @PathVariable Long jobId) {
+        return ResponseEntity.ok(ApiResponse.ok(
+                applicationService.getMyApplicationForJob(principal.getId(), jobId), "OK"));
     }
 
     @PatchMapping("/applications/{id}/status")

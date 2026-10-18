@@ -39,6 +39,7 @@ frontend/pnpm-debug.log*
 
 backend/target/
 backend/.mvn/
+backend/src/main/resources/application-local.yml
 
 *.class
 *.log

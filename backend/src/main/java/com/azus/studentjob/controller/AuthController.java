@@ -1,6 +1,7 @@
 package com.azus.studentjob.controller;
 
 import com.azus.studentjob.config.OpenApiConfig;
+import com.azus.studentjob.dto.request.ChangePasswordRequest;
 import com.azus.studentjob.dto.request.LoginRequest;
 import com.azus.studentjob.dto.request.RegisterEmployerRequest;
 import com.azus.studentjob.dto.request.RegisterStudentRequest;
@@ -87,6 +88,15 @@ public class AuthController {
     @Operation(summary = "Current user info", security = @SecurityRequirement(name = OpenApiConfig.BEARER_SCHEME))
     public ResponseEntity<ApiResponse<UserResponse>> me(@AuthenticationPrincipal CustomUserDetails principal) {
         return ResponseEntity.ok(ApiResponse.ok(authService.getCurrentUser(principal.getId()), "OK"));
+    }
+
+    @PostMapping("/change-password")
+    @Operation(summary = "Change the password of the current user", security = @SecurityRequirement(name = OpenApiConfig.BEARER_SCHEME))
+    public ResponseEntity<ApiResponse<Void>> changePassword(
+            @AuthenticationPrincipal CustomUserDetails principal,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        authService.changePassword(principal.getId(), request);
+        return ResponseEntity.ok(ApiResponse.ok(null, "Password changed"));
     }
 
     private ResponseEntity<ApiResponse<AuthResponse>> toAuthResponse(AuthResult result, String message) {

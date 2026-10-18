@@ -1,6 +1,8 @@
 import Link from "next/link";
-import { ArrowRight, Building2, ClipboardCheck, Search } from "lucide-react";
+import { Building2, ClipboardCheck, Search } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
+import { HomeSearch } from "@/components/jobs/home-search";
+import { LatestJobs } from "@/components/jobs/latest-jobs";
 import { cn } from "@/lib/utils";
 
 const FEATURES = [
@@ -14,7 +16,7 @@ export default function HomePage() {
     <>
       <section className="relative overflow-hidden border-b bg-linear-to-b from-accent/70 via-background to-background">
         <div className="pointer-events-none absolute -top-32 right-0 size-96 rounded-full bg-primary/10 blur-3xl" />
-        <div className="relative mx-auto flex w-full max-w-6xl flex-col items-center gap-6 px-4 py-20 text-center sm:px-6 sm:py-28">
+        <div className="relative mx-auto flex w-full max-w-6xl flex-col items-center gap-6 px-4 py-20 text-center sm:px-6 sm:py-24">
           <span className="rounded-full border bg-background px-3 py-1 text-xs font-medium text-primary shadow-sm">
             Dành riêng cho sinh viên
           </span>
@@ -24,14 +26,13 @@ export default function HomePage() {
           <p className="max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             StudentJob kết nối sinh viên với các nhà tuyển dụng đang cần thực tập sinh, nhân viên bán thời gian và toàn thời gian.
           </p>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Link href="/jobs" className={cn(buttonVariants({ size: "lg" }), "h-11 px-6 text-sm shadow-sm")}>
-              Xem việc làm <ArrowRight />
-            </Link>
-            <Link href="/register?type=employer" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "h-11 px-6 text-sm")}>
-              Tôi là nhà tuyển dụng
-            </Link>
-          </div>
+          <HomeSearch />
+          <Link
+            href="/register?type=employer"
+            className={cn(buttonVariants({ variant: "ghost" }), "text-muted-foreground")}
+          >
+            Bạn là nhà tuyển dụng? Đăng ký tuyển dụng
+          </Link>
         </div>
       </section>
 
@@ -46,6 +47,8 @@ export default function HomePage() {
           </div>
         ))}
       </section>
+
+      <LatestJobs />
     </>
   );
 }

@@ -23,10 +23,23 @@ export function useMyApplications(params) {
   });
 }
 
+/** `enabled` should be true only for logged-in students. */
+export function useMyApplicationForJob(jobId, enabled) {
+  return useQuery({
+    queryKey: ["student", "application", String(jobId)],
+    queryFn: () => studentApi.getMyApplicationForJob(jobId),
+    enabled,
+  });
+}
+
 export function useApply() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: studentApi.applyToJob,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["student", "applications"] }),
+    // onSettled: a 409 ("already applied") also means our cached state was stale
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["student", "applications"] });
+      queryClient.invalidateQueries({ queryKey: ["student", "application"] });
+    },
   });
 }

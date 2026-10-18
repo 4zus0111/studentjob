@@ -38,3 +38,7 @@ export function useLogout() {
     },
   });
 }
+
+export function useChangePassword() {
+  return useMutation({ mutationFn: authApi.changePassword });
+}

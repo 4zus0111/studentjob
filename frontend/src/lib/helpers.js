@@ -59,6 +59,9 @@ const MESSAGES = {
   "This job has been hidden by an admin": "Tin này đã bị quản trị viên ẩn",
   "This employer is not waiting for approval": "Nhà tuyển dụng này không ở trạng thái chờ duyệt",
   "Admin accounts cannot be locked": "Không thể khóa tài khoản quản trị viên",
+  "Current password is incorrect": "Mật khẩu hiện tại không đúng",
+  "New password must be different from the current password": "Mật khẩu mới phải khác mật khẩu hiện tại",
+  "Deadline must not be in the past": "Hạn nộp hồ sơ không được ở quá khứ",
   "Data conflicts with existing records": "Dữ liệu bị trùng với bản ghi đã có",
 };
 

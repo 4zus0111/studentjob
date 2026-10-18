@@ -8,6 +8,7 @@ import com.azus.studentjob.entity.EmployerProfile;
 import com.azus.studentjob.entity.Job;
 import com.azus.studentjob.enums.JobStatus;
 import com.azus.studentjob.enums.JobType;
+import com.azus.studentjob.enums.UserStatus;
 import com.azus.studentjob.exception.BadRequestException;
 import com.azus.studentjob.exception.ConflictException;
 import com.azus.studentjob.exception.ForbiddenException;
@@ -43,9 +44,11 @@ public class JobService {
     public PageResponse<JobResponse> search(String keyword, Long categoryId, JobType jobType,
                                             String location, Long salaryMin, Pageable pageable) {
         final LocalDate today = LocalDate.now();
+        // Jobs of a locked employer are not shown either
         Specification<Job> spec = (root, query, cb) -> cb.and(
                 cb.equal(root.get("status"), JobStatus.OPEN),
-                cb.greaterThanOrEqualTo(root.<LocalDate>get("deadline"), today));
+                cb.greaterThanOrEqualTo(root.<LocalDate>get("deadline"), today),
+                cb.equal(root.get("employer").get("user").get("status"), UserStatus.ACTIVE));
 
         if (keyword != null && !keyword.isBlank()) {
             final String like = "%" + keyword.trim().toLowerCase() + "%";
@@ -80,6 +83,7 @@ public class JobService {
     public JobResponse getPublicJob(Long id) {
         Job job = jobRepository.findById(id)
                 .filter(j -> j.getStatus() != JobStatus.HIDDEN)
+                .filter(j -> j.getEmployer().getUser().getStatus() != UserStatus.LOCKED)
                 .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
         return JobResponse.from(job);
     }
@@ -99,6 +103,7 @@ public class JobService {
         EmployerProfile employer = employerService.findProfile(userId);
         employerService.requireApproved(employer);
         validateSalary(request);
+        validateDeadline(request.deadline());
 
         Job job = Job.builder()
                 .employer(employer)
@@ -122,6 +127,9 @@ public class JobService {
         employerService.requireApproved(employer);
         Job job = findOwnedJob(employer, jobId);
         validateSalary(request);
+        if (!request.deadline().equals(job.getDeadline())) {
+            validateDeadline(request.deadline());
+        }
 
         job.setCategory(findCategory(request.categoryId()));
         job.setTitle(request.title().trim());
@@ -170,6 +178,12 @@ public class JobService {
     private Category findCategory(Long categoryId) {
         return categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new BadRequestException("Category does not exist"));
+    }
+
+    private void validateDeadline(LocalDate deadline) {
+        if (deadline.isBefore(LocalDate.now())) {
+            throw new BadRequestException("Deadline must not be in the past");
+        }
     }
 
     private void validateSalary(JobRequest request) {

@@ -23,7 +23,7 @@ import { getErrorMessage, getFieldErrors } from "@/lib/helpers";
 import {
   formValuesToJobRequest,
   JOB_DEFAULTS,
-  jobSchema,
+  buildJobSchema,
   jobToFormValues,
 } from "@/lib/schemas/job";
 
@@ -38,7 +38,7 @@ function JobForm({ job, onDone }) {
   const [serverError, setServerError] = useState("");
 
   const form = useForm({
-    resolver: zodResolver(jobSchema),
+    resolver: zodResolver(buildJobSchema(job?.deadline)),
     defaultValues: isEdit ? jobToFormValues(job) : JOB_DEFAULTS,
   });
 

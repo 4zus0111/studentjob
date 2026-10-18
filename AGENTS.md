@@ -45,7 +45,8 @@ Guidance for AI coding agents working on this repository.
 - Jobs past their `deadline` are not shown in public search and cannot receive applications.
 - Application status flow: `PENDING → ACCEPTED` or `PENDING → REJECTED`. No other transitions.
 - A student cannot apply to the same job twice.
-- Locked users cannot log in.
+- Locked users cannot log in, and the jobs of a locked employer are hidden from public search and cannot receive applications.
+- A job's deadline cannot be set in the past when creating it or changing its deadline; an employer can still close or edit an expired job without touching the deadline.
 
 Out of scope: favorites/bookmarks, email verification, forgot password, interview scheduling, notifications, file uploads, statistics dashboard, automated tests.
 
@@ -157,12 +158,13 @@ Include a `type` claim (`access` / `refresh`) in tokens and reject a token used 
 | POST | `/api/auth/refresh` | Reads refresh cookie, returns a new access token |
 | POST | `/api/auth/logout` | Clears refresh cookie |
 | GET | `/api/auth/me` | Current user info |
+| POST | `/api/auth/change-password` | Change own password (`currentPassword`, `newPassword`); requires login |
 
 ### Rules
 - Passwords hashed with BCrypt.
 - Authorization via `@PreAuthorize("hasRole('STUDENT')")` etc. (enable `@EnableMethodSecurity`). Roles map to `ROLE_` authorities.
 - Ownership checks live in services (e.g. an employer can only edit/view applicants of **their own** jobs; a student can only view **their own** applications).
-- Public endpoints: `GET /api/jobs/**`, `GET /api/categories`, `/api/auth/**` (except `/me`), Swagger UI.
+- Public endpoints: `GET /api/jobs`, `GET /api/jobs/{id}`, `GET /api/categories`, `/api/auth/**` (except `/me` and `/change-password`), Swagger UI.
 - CORS: allow origin `http://localhost:3000` with `allowCredentials(true)`. Frontend axios must use `withCredentials: true`.
 
 ### Frontend auth flow
@@ -197,7 +199,7 @@ Errors:
 |------|-----------|
 | Jobs (public) | `GET /api/jobs` (filters: `keyword`, `categoryId`, `jobType`, `location`, `salaryMin`), `GET /api/jobs/{id}` |
 | Categories | `GET /api/categories` |
-| Student | `GET/PUT /api/students/me`, `POST /api/jobs/{id}/applications`, `GET /api/students/me/applications` |
+| Student | `GET/PUT /api/students/me`, `POST /api/jobs/{id}/applications`, `GET /api/jobs/{id}/applications/me` (404 if not applied), `GET /api/students/me/applications` |
 | Employer | `GET/PUT /api/employers/me`, `POST /api/employers/me/jobs`, `GET /api/employers/me/jobs`, `PUT/DELETE /api/employers/me/jobs/{id}`, `GET /api/employers/me/jobs/{id}/applications`, `PATCH /api/applications/{id}/status` (`ACCEPTED` / `REJECTED`) |
 | Admin | `GET /api/admin/employers?status=`, `PATCH /api/admin/employers/{userId}/approval`, `GET /api/admin/jobs`, `PATCH /api/admin/jobs/{id}/visibility`, `GET /api/admin/users`, `PATCH /api/admin/users/{id}/lock` |
 
@@ -235,6 +237,7 @@ Filtering uses a JPQL `@Query` or Spring Data `Specification`; keep it simple.
 | `/login`, `/register` | public | Auth (register has student / employer tabs) |
 | `/student/profile` | STUDENT | Edit profile and CV link |
 | `/student/applications` | STUDENT | Applied jobs and statuses |
+| `/account/password` | any logged-in user | Change password |
 | `/employer/company` | EMPLOYER | Company profile |
 | `/employer/jobs` | EMPLOYER | Manage jobs (list, create, edit, delete) |
 | `/employer/jobs/[id]/applicants` | EMPLOYER | Applicants, accept / reject |

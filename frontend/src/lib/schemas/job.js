@@ -6,7 +6,12 @@ const salary = z
   .trim()
   .refine((v) => v === "" || /^\d{1,12}$/.test(v), "Chỉ nhập số nguyên không âm");
 
-export const jobSchema = z
+/**
+ * `originalDeadline`: when editing, keeping the existing deadline is allowed even if it has passed,
+ * so an employer can still close or edit an expired job (the server applies the same rule).
+ */
+export function buildJobSchema(originalDeadline = null) {
+  return z
   .object({
     title: z.string().trim().min(1, "Vui lòng nhập tiêu đề").max(255, "Tối đa 255 ký tự"),
     categoryId: z.string().min(1, "Vui lòng chọn danh mục"),
@@ -17,7 +22,7 @@ export const jobSchema = z
     deadline: z
       .string()
       .min(1, "Vui lòng chọn hạn nộp hồ sơ")
-      .refine((v) => v >= todayString(), "Hạn nộp hồ sơ không được ở quá khứ"),
+      .refine((v) => v >= todayString() || v === originalDeadline, "Hạn nộp hồ sơ không được ở quá khứ"),
     description: z.string().trim().min(1, "Vui lòng nhập mô tả công việc").max(10000, "Tối đa 10000 ký tự"),
     requirements: z.string().trim().max(10000, "Tối đa 10000 ký tự"),
     status: z.enum(["OPEN", "CLOSED"]),
@@ -26,6 +31,9 @@ export const jobSchema = z
     path: ["salaryMax"],
     message: "Lương tối đa không được thấp hơn lương tối thiểu",
   });
+}
+
+export const jobSchema = buildJobSchema();
 
 export const JOB_DEFAULTS = {
   title: "",

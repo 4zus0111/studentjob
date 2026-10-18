@@ -5,6 +5,7 @@ import {
   Building2,
   Briefcase,
   ClipboardList,
+  KeyRound,
   LogOut,
   ShieldCheck,
   UserRound,
@@ -77,6 +78,10 @@ export function UserMenu({ user }) {
           ))}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => router.push("/account/password")} className="py-2">
+          <KeyRound />
+          Đổi mật khẩu
+        </DropdownMenuItem>
         <DropdownMenuItem
           variant="destructive"
           className="py-2"
